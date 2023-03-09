@@ -8,6 +8,7 @@ const adminRoute = require('./routes/admin.router')
 const playerRoute = require('./routes/player.router')
 const ownerRoute = require('./routes/owner.router')
 const fieldRoute = require('./routes/field.router')
+const bookingRoute = require('./routes/booking.router')
 
 const app = express()
 
@@ -29,5 +30,7 @@ app.use('/players', playerRoute)
 app.use('/owners', ownerRoute)
 
 app.use('/field', fieldRoute)
+
+app.use('/bookings', bookingRoute)
 
 app.listen(process.env.APP_PORT)

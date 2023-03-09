@@ -1,5 +1,4 @@
 const db = require('../config/database')
-const bcrypt = require('bcryptjs')
 const cloudinary = require('../utils/cloudinary')
 
 exports.getAllFields = (req, res, next) => {
@@ -31,6 +30,92 @@ exports.getField = (req, res, next) => {
 exports.getFieldByType = (req, res, next) => {
   const type = req.params.type
   db.execute(`SELECT * FROM field WHERE type = '${type}'`)
+    .then((result) => {
+      res.status(200).json(result[0])
+    })
+    .catch((err) => console.log(err))
+}
+
+exports.getFieldByRate = (req, res, next) => {
+  db.execute(`SELECT f.field_id, f.fieldName, avg(stars) as stars, f.parking, f.free_wifi, f.online_payment, f.owner_id, f.type, f.location, f.city, f.lat, f.lng, f.map_link, f.total_pitch, f.average_price, f.image_url, f.description  FROM SportField.field f join SportField.rating r on r.field_id = f.field_id group by f.field_id order by avg(stars) DESC;`)
+    .then((result) => {
+      res.status(200).json(result[0])
+    })
+    .catch((err) => console.log(err))
+}
+
+exports.searchField = async (req, res) => {
+  const fieldName = req.params.fieldName
+
+  db.execute(`SELECT * FROM field WHERE fieldName LIKE '%${fieldName}%'`)
+    .then((result) => {
+      res.status(200).json(result[0])
+    })
+    .catch((err) => console.log(err))
+}
+
+exports.getFieldStars = async (req, res) => {
+  const fieldId = req.params.fieldId
+
+  db.execute(
+    `SELECT sum(stars)/count(stars) as avgStars FROM rating WHERE field_id = ${fieldId}`
+  )
+    .then((result) => {
+      res.status(200).json(result[0])
+    })
+    .catch((err) => console.log(err))
+}
+
+exports.addStar = async (req, res) => {
+  const { fieldId, playerId, stars } = req.body
+
+  db.execute(
+    `INSERT INTO rating (player_id, stars, field_id) VALUES('${playerId}', '${stars}', '${fieldId}')`
+  )
+    .then((result) => {
+      res.status(200).json({
+        message: 'Rated Successfully',
+      })
+    })
+    .catch((err) => console.log(err))
+}
+
+exports.updateStar = async (req, res) => {
+  const { fieldId, playerId, stars } = req.body
+
+  const [[alreadyRated, sth]] = await db.execute(
+    `Select * FROM rating WHERE player_id = '${playerId}' AND field_id = '${fieldId}'`
+  )
+
+  if (alreadyRated) {
+    db.execute(
+      `UPDATE rating SET stars = '${stars}' WHERE player_id = '${playerId}' AND field_id = '${fieldId}' `
+    )
+      .then((result) => {
+        res.status(200).json({
+          message: 'Updated Rated Successfully',
+        })
+      })
+      .catch((err) => console.log(err))
+  } else {
+    db.execute(
+      `INSERT INTO rating (player_id, stars, field_id) VALUES('${playerId}', '${stars}', '${fieldId}')`
+    )
+      .then((result) => {
+        res.status(200).json({
+          message: 'Rated Successfully',
+        })
+      })
+      .catch((err) => console.log(err))
+  }
+}
+
+exports.playerRate = async (req, res) => {
+  const {fieldId, playerId} = req.params
+
+  db.execute(
+    `SELECT stars FROM rating WHERE player_id = ${playerId} AND field_id = ${fieldId} `
+  )
     .then((result) => {
       res.status(200).json(result[0])
     })
