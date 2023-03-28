@@ -2,12 +2,21 @@ const db = require('../config/database')
 
 exports.getAllBookings = (req, res, next) => {
   const today = new Date().toISOString().slice(0, 10)
-  console.log(today)
   db.execute(`SELECT * FROM booking WHERE date >= '${today}'`)
     .then((result) => {
       result[0].map((ele) => {
         ele.date = ele.date.toISOString().slice(0, 10)
       })
+      res.status(200).json(result[0])
+    })
+    .catch((err) => console.log(err))
+}
+
+exports.getMyBookings = (req, res, next) => {
+  const pId = req.params.playerId
+  const today = new Date().toISOString().slice(0, 10)
+  db.execute(`SELECT b.booking_id,b.field_id, f.fieldName, b.date, b.time, b.pitch_number, b.status  FROM SportField.booking b join SportField.field f on b.field_id = f.field_id where b.player_id = '${pId}' order by b.date DESC;`)
+    .then((result) => {
       res.status(200).json(result[0])
     })
     .catch((err) => console.log(err))
