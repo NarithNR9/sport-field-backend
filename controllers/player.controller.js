@@ -1,8 +1,8 @@
 const db = require('../config/database')
 const bcrypt = require('bcryptjs')
+const khan = require('../data/districtPP')
 
 exports.getPlayers = (req, res, next) => {
-  console.log(req.body)
   db.execute('SELECT * FROM player')
     .then((result) => {
       res.status(200).json(result[0])
@@ -16,13 +16,12 @@ exports.createPlayer = async (req, res, next) => {
   const email = req.body.email
   const phoneNumber = req.body.phoneNumber
   const district = req.body.district
-  const lat = req.body.lat
-  const lng = req.body.lng
+  const lat = khan[khan.findIndex(e => e.name === district)].lat
+  const lng = khan[khan.findIndex(e => e.name === district)].lng
 
   const hashedPassword = await bcrypt
     .hash(password, 12)
     .then((hashed) => {
-      console.log(hashed)
       return hashed
     })
     .catch((err) => console.log(err))
@@ -74,6 +73,7 @@ exports.loginPlayer = async (req, res, next) => {
             name: player.username,
             email: player.email,
             role: player.role,
+            district: player.district
           })
         } else {
           res.status(401).json({

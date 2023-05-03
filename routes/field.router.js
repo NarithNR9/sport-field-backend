@@ -20,6 +20,9 @@ router.get('/type/:type', fieldController.getFieldByType)
 router.get('/rate/rating', fieldController.getFieldByRate)
 
 // GET requset
+router.get('/distance/:id', fieldController.getFieldByDistance)
+
+// GET requset
 router.get('/search/:fieldName', fieldController.searchField)
 
 // GET requset
