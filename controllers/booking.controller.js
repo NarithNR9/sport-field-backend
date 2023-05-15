@@ -42,7 +42,7 @@ exports.createBooking = async (req, res, next) => {
   const status = req.body.status;
   const bookedTimestamp = "2023-02-21 11:00:02";
   const pitchNumber = req.body.pitchNumber;
-  const time = req.body.time; 
+  const time = req.body.time;
 
   db.execute(
     `INSERT INTO booking (field_id, player_id, date, status, booked_timestamp, pitch_number, time) VALUES ('${fieldId}',${playerId},'${date}','${status}','${bookedTimestamp}','${pitchNumber}','${time}')`
@@ -50,6 +50,17 @@ exports.createBooking = async (req, res, next) => {
     .then(
       res.status(201).json({
         message: "Field Booked Successfully",
+      })
+    )
+    .catch((err) => console.log(err));
+};
+
+exports.cancelBooking = async (req, res) => {
+  const bookingId = req.params.bookingId;
+  db.execute(`UPDATE booking SET status = "Cancel" WHERE booking_id = ${bookingId}`)
+    .then(
+      res.status(201).json({
+        message: "Booking canceled Successfully",
       })
     )
     .catch((err) => console.log(err));

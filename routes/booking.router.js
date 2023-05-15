@@ -16,4 +16,7 @@ router.get("/owner", bookingController.getOwnerBooking);
 // POST req
 router.post("/", bookingController.createBooking);
 
+// PUT req
+router.put("/cancel/:bookingId", bookingController.cancelBooking);
+
 module.exports = router;
