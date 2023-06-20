@@ -27,7 +27,7 @@ exports.getMyBookings = (req, res, next) => {
 exports.getOwnerBooking = (req, res, next) => {
   const { fieldId, date, type, pitchNumber } = req.query;
   db.execute(
-    `SELECT b.booking_id, f.fieldName,f.type, b.date, b.time, b.pitch_number, b.status, p.phone_number  FROM SportField.booking b join SportField.field f on b.field_id = f.field_id join SportField.player p on b.player_id = p.player_id where f.field_id = '${fieldId}' AND f.type = '${type}' AND b.pitch_number = '${pitchNumber}' AND b.date LIKE '${date}%' order by b.time DESC;`
+    `SELECT b.booking_id,f.field_id, f.fieldName,f.type, b.date, b.time, b.pitch_number, b.status, p.player_id, p.username, p.email, p.phone_number FROM SportField.booking b join SportField.field f on b.field_id = f.field_id join SportField.player p on b.player_id = p.player_id where f.field_id = '${fieldId}' AND f.type = '${type}' AND b.pitch_number = '${pitchNumber}' AND b.date LIKE '${date}%' order by b.time DESC;`
   )
     .then((result) => {
       res.status(200).json(result[0]);
